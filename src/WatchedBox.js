@@ -1,13 +1,11 @@
-import tempWatchedData from "./tempWatchedData";
-import ToogleButton from "./ToogleButton";
 import Summary from "./Summary";
 import WatchedMoviesList from "./WatchedMoviesList";
+import ToogleButton from "./ToogleButton";
 import { useState } from "react";
-export default function WatchedMovies() {
+import tempWatchedData from "./tempWatchedData";
+export default function WatchedBox() {
   const [watched, setWatched] = useState(tempWatchedData);
-
   const [isOpen2, setIsOpen2] = useState(true);
-
   return (
     <div className="box">
       <ToogleButton isOpen={isOpen2} setIsOpen={setIsOpen2} />
