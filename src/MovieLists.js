@@ -1,6 +1,5 @@
 import Movie1 from "./Movie1";
 export default function MovieLists({ movies }) {
-  console.log(movies);
   return (
     <ul className="list">
       {movies?.map((movie) => (
