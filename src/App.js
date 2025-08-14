@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useMovies } from "./useMovies";
 import Main from "./Main";
 import NavBar from "./NavBar";
 import NumResults from "./NumResults";
@@ -10,15 +11,13 @@ import Logo from "./Logo";
 import Search from "./Search";
 import Loader from "./Loader";
 import ErrorMessage from "./ErrorMessage";
-import Movie2 from "./Movie2";
 import SelectedMovie from "./SelectedMovie";
-const key = "7a2425af";
+import { useLocalStorage } from "./useLocalStorage";
 export default function App() {
-  const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState(null);
-  const [query, setQuery] = useState("hulk");
+  const [watched, setWatched] = useLocalStorage("WatchedMovies", []);
+  const [query, setQuery] = useState("");
+  const [movies, isLoading, error] = useMovies(query);
+
   const [selectedId, setSelectedId] = useState(null);
   function handleAddWatched(movie) {
     setWatched((prev) => [...prev, movie]);
@@ -33,43 +32,14 @@ export default function App() {
     setWatched((watched) => watched.filter((w) => w.imdbID !== id));
   }
   useEffect(() => {
-    async function fetchData() {
-      try {
-        setIsLoading(true);
-        setError("");
-        const res = await fetch(
-          `https://www.omdbapi.com/?i=tt3896198&apikey=${key}&s=${query}`
-        );
-
-        if (!res.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const data = await res.json();
-        if (data.Response === "False") {
-          throw new Error("Movie Not Found");
-        }
-
-        setMovies(data.Search);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setIsLoading(false);
-      }
-    }
-    if (query.length < 3) {
-      setMovies([]);
-      setError("");
-      return;
-    }
-    fetchData();
+    handleSelectClose();
   }, [query]);
-
   return (
     <>
       <NavBar>
         <Logo />
         <Search query={query} setQuery={setQuery} />
-        {/* {!isLoading && !error && <NumResults movies={movies} />} */}
+        {!isLoading && !error && <NumResults movies={movies} />}
       </NavBar>
       <Main>
         <Box>

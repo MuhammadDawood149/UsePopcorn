@@ -22,6 +22,7 @@ export default function Movie2({ movie, handleRemoveMovie }) {
         >
           x
         </button>
+        <p>The use take {movie.ratingCounter}</p>
       </div>
     </li>
   );

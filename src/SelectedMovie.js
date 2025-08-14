@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
+import { useKey } from "./useKey";
 const key = "7a2425af";
 export default function SelectedMovie({
   selectedId,
@@ -12,10 +13,12 @@ export default function SelectedMovie({
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
+
+  const ratingCounter = useRef(0);
+
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === selectedId
   )?.userRating;
-  console.log(isWatched);
   const {
     Title: title,
     Poster: poster,
@@ -28,6 +31,7 @@ export default function SelectedMovie({
     Director: director,
     Genre: genre,
   } = movie;
+
   function handleAdd() {
     const newMovie = {
       imdbID: selectedId,
@@ -37,10 +41,15 @@ export default function SelectedMovie({
       poster,
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
+      ratingCounter: ratingCounter.current,
     };
     handleAddWatched(newMovie, userRating);
+
     handleSelectClose();
   }
+  useEffect(() => {
+    if (userRating) ratingCounter.current++;
+  }, [userRating]);
   useEffect(() => {
     async function getMovieDetails() {
       setIsLoading(true);
@@ -54,6 +63,13 @@ export default function SelectedMovie({
     }
     getMovieDetails();
   }, [selectedId]);
+  useEffect(() => {
+    if (title) document.title = `Movie | ${title}`;
+    return () => {
+      document.title = "usePopcorn";
+    };
+  }, [title]);
+  useKey("Escape", handleSelectClose);
   return (
     <div className="details">
       {isLoading ? (
@@ -77,8 +93,6 @@ export default function SelectedMovie({
               </p>
             </div>
           </header>
-
-          {/* <p>{avgRating}</p> */}
 
           <section>
             <div className="rating">
@@ -112,27 +126,4 @@ export default function SelectedMovie({
       )}
     </div>
   );
-}
-
-{
-  /* <div className="rating">
-              {!isWatched ? (
-                <>
-                  <StarRating
-                    maxRating={10}
-                    size={24}
-                    onSetRating={setUserRating}
-                  />
-                  {userRating > 0 && (
-                    <button className="btn-add" onClick={handleAdd}>
-                      + Add to list
-                    </button>
-                  )}
-                </>
-              ) : (
-                <p>
-                  You rated with movie {watchedUserRating} <span>⭐️</span>
-                </p>
-              )}
-            </div> */
 }
